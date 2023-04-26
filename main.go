@@ -41,6 +41,7 @@ See https://proxy.golang.org/privacy for privacy information
 about these services and the go command documentation for configuration
 details including how to disable the use of these servers or
 use different ones.
+
 `
 
 func main() {
@@ -55,19 +56,21 @@ func main() {
 
 	fmt.Printf("Installing Go for %v/%v...\n", hostOS, hostArch)
 
+	answer := ""
+
 	fmt.Print(notice)
-	answer := "Y"
-	fmt.Scanf("Do you want to continue? (Y/n)", &answer)
-	if answer != "Y" {
-		fmt.Println("Stopping go installation")
+	fmt.Printf("Do you want to continue? (Y/n) ")
+	fmt.Scanf("%s", &answer)
+	if answer != "Y" && answer != "" {
+		fmt.Println("Stopping go installation.")
 		os.Exit(0)
 	}
 
 	dst := installDir()
-	fmt.Printf("Go will be installed in %v.\n", dst)
-	fmt.Scanf("Continue? (Y/n)", &answer)
-	if answer != "Y" {
-		fmt.Println("Stopping go installation")
+	fmt.Printf("Go will be installed in %v. Continue? (Y/n) ", dst)
+	fmt.Scanf("%s", &answer)
+	if answer != "Y" && answer != "" {
+		fmt.Println("Stopping go installation.")
 		os.Exit(0)
 	}
 
@@ -77,16 +80,20 @@ func main() {
 		uri := fmt.Sprintf("https://github.com/hyangah/goup/raw/main/res/%v.zip", ver)
 		r, err := ReadZip(ctx, uri)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		WriteZip(ctx, dst, r)
 	}
 	// TODO: lookup the latest version and install it.
 
 	goCommand(gobin, "toolchain", "use", "go1.20.2")
+	fmt.Println()
 	goCommand(gobin, "version")
-
-	fmt.Printf("Go is installed in %v. Make sure it is in your PATH.\n", gobin)
+	fmt.Println()
+	fmt.Printf("Go is installed in %v successfully.\n", gobin)
+	if p, err := exec.LookPath("go"); err != nil || p != gobin {
+		fmt.Printf("Please ensure %v is in your PATH.\n", filepath.Dir(gobin))
+	}
 }
 
 func hostOSArch() (host, arch string, _ error) {
