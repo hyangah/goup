@@ -44,8 +44,14 @@ use different ones.
 
 `
 
+var X int
+
 func main() {
 	ctx := context.Background()
+	if X == 0 {
+		fmt.Println("Hello World")
+		os.Exit(0)
+	}
 
 	hostOS, hostArch, err := hostOSArch()
 	if err != nil {
